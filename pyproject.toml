@@ -1,0 +1,44 @@
+[project]
+name = "data-vet"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Leo-Adelmo",email = "leonardo-adelmo@hotmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "numpy (>=2.4.2,<3.0.0)",
+    "folium (>=0.20.0,<0.21.0)",
+    "geopandas (>=1.1.2,<2.0.0)",
+    "shapely (>=2.1.2,<3.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "data_vet", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.2,<10.0.0)",
+    "pytest-cov (>=7.0.0,<8.0.0)",
+    "ruff (>=0.15.4,<0.16.0)",
+    "typos (>=1.44.0,<2.0.0)"
+]
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+preview = true
+select = ["B", "E", "F", "I", "W"]
+
+[tool.ruff.format]
+preview = true
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = '-p no:warnings'
