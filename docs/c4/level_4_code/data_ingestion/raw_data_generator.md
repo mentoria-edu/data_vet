@@ -2,6 +2,7 @@
 
 ```mermaid
 classDiagram
+direction TB
 
 class RawWriter {
   +String storagePath
@@ -60,16 +61,6 @@ class SearchArea {
   +LocationRectangle locationRectangle
 }
 
-class LocationRectangle {
-  +LatLng low
-  +LatLng high
-}
-
-class LatLng {
-  +float latitude
-  +float longitude
-}
-
 class RawApiResponse {
   +String endpoint
   +Map queryParams
@@ -77,40 +68,13 @@ class RawApiResponse {
   +DateTime receivedAt
 }
 
-class SearchAction {
-  <<enumeration>>
-  IGNORE
-  SEARCH
-  SUBDIVIDE
-}
-
-class Place {
-  +String placeId
-  +String name
-  +String address
-  +float latitude
-  +float longitude
-}
-
-RawWriter --> RawStorageRepository : persists raw records
-RawWriter --> RawPathBuilder : resolves storage paths
+RawWriter --> RawStorageRepository : persists
+RawWriter --> RawPathBuilder : paths
 RawWriter ..> RawRecord : builds
-RawWriter ..> AggregateResult : receives aggregate result
-RawWriter ..> TextSearchPage : receives text search page
+RawWriter ..> AggregateResult : reads
+RawWriter ..> TextSearchPage : reads
 
 FileRawStorageRepository ..|> RawStorageRepository : implements
 RawStorageRepository ..> RawRecord : saves
-
-RawRecord *-- RawMetadata : includes metadata
-RawRecord *-- RawApiResponse : includes original response
-AggregateResult --> SearchArea : references generated area
-AggregateResult --> SearchAction : defines action
-AggregateResult --> RawApiResponse : preserves payload
-TextSearchPage --> SearchArea : references generated area
-TextSearchPage "1" o-- "*" Place : contains places
-TextSearchPage --> RawApiResponse : preserves payload
-RawMetadata --> LocationRectangle : records request rectangle
-RawPathBuilder ..> SearchArea : reads area id
-SearchArea --> LocationRectangle : provides lat lon rectangle
-LocationRectangle *-- LatLng : defines low and high points
+RawPathBuilder ..> SearchArea : reads
 ```

@@ -2,6 +2,7 @@
 
 ```mermaid
 classDiagram
+direction TB
 
 class AggregateExecutor {
   +int aggregateThreshold
@@ -34,18 +35,14 @@ class GooglePlacesApiConfig {
   +String textSearchEndpoint
 }
 
+class AggregateResponseParser {
+  +countEstablishments(RawApiResponse response) int
+}
+
 class AggregateRequest {
   +String areaId
   +LocationRectangle locationRestriction
   +String category
-  +Map queryParams
-}
-
-class TextSearchRequest {
-  +String areaId
-  +LocationRectangle locationRestriction
-  +String category
-  +String pageToken
   +Map queryParams
 }
 
@@ -56,27 +53,10 @@ class AggregateResult {
   +RawApiResponse rawResponse
 }
 
-class SearchAction {
-  <<enumeration>>
-  IGNORE
-  SEARCH
-  SUBDIVIDE
-}
-
 class SearchArea {
   +String areaId
   +int resolution
   +LocationRectangle locationRectangle
-}
-
-class LocationRectangle {
-  +LatLng low
-  +LatLng high
-}
-
-class LatLng {
-  +float latitude
-  +float longitude
 }
 
 class RawApiResponse {
@@ -86,31 +66,22 @@ class RawApiResponse {
   +DateTime receivedAt
 }
 
-class AggregateResponseParser {
-  +countEstablishments(RawApiResponse response) int
+class SearchAction {
+  <<enumeration>>
+  IGNORE
+  SEARCH
+  SUBDIVIDE
 }
 
-AggregateExecutor --> GooglePlacesClient : requests aggregate count
-AggregateExecutor --> GooglePlacesRequestBuilder : delegates request creation
-AggregateExecutor --> AggregateResponseParser : parses count
-AggregateExecutor ..> AggregateResult : returns decision
+AggregateExecutor --> GooglePlacesRequestBuilder : builds
+AggregateExecutor --> GooglePlacesClient : calls
+AggregateExecutor --> AggregateResponseParser : parses
+AggregateExecutor ..> AggregateResult : returns
 
-GooglePlacesRequestBuilder --> SearchArea : reads request rectangle
-GooglePlacesRequestBuilder ..> AggregateRequest : builds aggregate request
-GooglePlacesRequestBuilder ..> TextSearchRequest : builds text search request
+GooglePlacesRequestBuilder --> SearchArea : reads
+GooglePlacesRequestBuilder ..> AggregateRequest : creates
 
 GooglePlacesApiClient ..|> GooglePlacesClient : implements
-GooglePlacesApiClient --> GooglePlacesApiConfig : reads credentials and endpoints
-GooglePlacesClient ..> RawApiResponse : returns raw payload
-
-AggregateRequest --> SearchArea : describes generated area
-AggregateRequest --> LocationRectangle : restricts search area
-TextSearchRequest --> SearchArea : describes generated area
-TextSearchRequest --> LocationRectangle : restricts search area
-AggregateResult --> SearchArea : references generated area
-AggregateResult --> SearchAction : defines next step
-AggregateResult --> RawApiResponse : preserves response
-AggregateResponseParser ..> RawApiResponse : reads payload
-SearchArea --> LocationRectangle : provides lat lon rectangle
-LocationRectangle *-- LatLng : defines low and high points
+GooglePlacesApiClient --> GooglePlacesApiConfig : config
+AggregateResponseParser ..> RawApiResponse : reads
 ```

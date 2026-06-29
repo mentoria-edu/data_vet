@@ -2,6 +2,7 @@
 
 ```mermaid
 classDiagram
+direction TB
 
 class SearchAreaGenerator {
   +String boundaryPath
@@ -33,16 +34,16 @@ class H3ResolutionPolicy {
   +nextResolution(H3Cell cell) int
 }
 
+class SearchAreaMapper {
+  +fromH3Cell(H3Cell cell) SearchArea
+  +toRectangle(H3Cell cell) LocationRectangle
+}
+
 class SearchAreaProcessingQueue {
   +enqueue(List~SearchArea~ areas) void
   +dequeue() SearchArea
   +isEmpty() bool
   +size() int
-}
-
-class SearchAreaMapper {
-  +fromH3Cell(H3Cell cell) SearchArea
-  +toRectangle(H3Cell cell) LocationRectangle
 }
 
 class SearchArea {
@@ -67,27 +68,18 @@ class LocationRectangle {
   +LatLng high
 }
 
-class LatLng {
-  +float latitude
-  +float longitude
-}
-
-SearchAreaGenerator --> BoundaryLoader : loads city boundary
-SearchAreaGenerator --> H3GridGenerator : generates H3 cells
-SearchAreaGenerator --> H3ResolutionPolicy : applies resolution rules
-SearchAreaGenerator --> SearchAreaMapper : exposes request areas
-SearchAreaGenerator --> SearchAreaProcessingQueue : creates processing queue
+SearchAreaGenerator --> BoundaryLoader : uses
+SearchAreaGenerator --> H3GridGenerator : uses
+SearchAreaGenerator --> H3ResolutionPolicy : uses
+SearchAreaGenerator --> SearchAreaMapper : maps
+SearchAreaGenerator --> SearchAreaProcessingQueue : queues
 
 SaoPauloBoundaryLoader ..|> BoundaryLoader : implements
-BoundaryLoader ..> Geometry : returns
-H3GridGenerator ..> Geometry : reads polygon
+H3GridGenerator ..> Geometry : reads
 H3GridGenerator ..> H3Cell : creates
 H3ResolutionPolicy ..> H3Cell : evaluates
-SearchAreaMapper ..> H3Cell : reads generated cell
-SearchAreaMapper ..> SearchArea : creates request area
-SearchAreaMapper ..> LocationRectangle : creates lat lon rectangle
-SearchAreaProcessingQueue "1" o-- "*" SearchArea : stores pending areas
-SearchArea --> LocationRectangle : provides request rectangle
-LocationRectangle *-- LatLng : defines low and high points
-H3Cell --> Geometry : contains boundary
+SearchAreaMapper ..> H3Cell : reads
+SearchAreaMapper ..> SearchArea : creates
+SearchAreaMapper ..> LocationRectangle : creates
+SearchAreaProcessingQueue "1" o-- "*" SearchArea : stores
 ```

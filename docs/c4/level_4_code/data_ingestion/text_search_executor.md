@@ -2,6 +2,7 @@
 
 ```mermaid
 classDiagram
+direction TB
 
 class TextSearchExecutor {
   +searchArea(SearchArea area) List~TextSearchPage~
@@ -42,18 +43,16 @@ class ApiRequestPolicy {
   +shouldRetry(Exception error, int attempt) bool
 }
 
+class TextSearchResponseParser {
+  +parsePlaces(RawApiResponse response) List~Place~
+  +extractNextPageToken(RawApiResponse response) String
+}
+
 class TextSearchRequest {
   +String areaId
   +LocationRectangle locationRestriction
   +String category
   +String pageToken
-  +Map queryParams
-}
-
-class AggregateRequest {
-  +String areaId
-  +LocationRectangle locationRestriction
-  +String category
   +Map queryParams
 }
 
@@ -65,25 +64,10 @@ class TextSearchPage {
   +RawApiResponse rawResponse
 }
 
-class TextSearchResponseParser {
-  +parsePlaces(RawApiResponse response) List~Place~
-  +extractNextPageToken(RawApiResponse response) String
-}
-
 class SearchArea {
   +String areaId
   +int resolution
   +LocationRectangle locationRectangle
-}
-
-class LocationRectangle {
-  +LatLng low
-  +LatLng high
-}
-
-class LatLng {
-  +float latitude
-  +float longitude
 }
 
 class Place {
@@ -101,29 +85,17 @@ class RawApiResponse {
   +DateTime receivedAt
 }
 
-TextSearchExecutor --> GooglePlacesClient : requests text search pages
-TextSearchExecutor --> GooglePlacesRequestBuilder : delegates request creation
-TextSearchExecutor --> ApiRequestPolicy : applies retry and limits
-TextSearchExecutor --> TextSearchResponseParser : parses response
-TextSearchExecutor ..> TextSearchPage : returns pages
+TextSearchExecutor --> GooglePlacesRequestBuilder : builds
+TextSearchExecutor --> GooglePlacesClient : calls
+TextSearchExecutor --> ApiRequestPolicy : limits
+TextSearchExecutor --> TextSearchResponseParser : parses
+TextSearchExecutor ..> TextSearchPage : returns
 
-GooglePlacesRequestBuilder --> SearchArea : reads request rectangle
-GooglePlacesRequestBuilder ..> AggregateRequest : builds aggregate request
-GooglePlacesRequestBuilder ..> TextSearchRequest : builds text search request
+GooglePlacesRequestBuilder --> SearchArea : reads
+GooglePlacesRequestBuilder ..> TextSearchRequest : creates
 
 GooglePlacesApiClient ..|> GooglePlacesClient : implements
-GooglePlacesApiClient --> GooglePlacesApiConfig : reads credentials and endpoints
-GooglePlacesClient ..> RawApiResponse : returns raw payload
-
-TextSearchRequest --> SearchArea : describes generated area
-TextSearchRequest --> LocationRectangle : restricts search area
-AggregateRequest --> SearchArea : describes generated area
-AggregateRequest --> LocationRectangle : restricts search area
-TextSearchPage --> SearchArea : references generated area
-TextSearchPage "1" o-- "*" Place : contains places
-TextSearchPage --> RawApiResponse : preserves response
-TextSearchResponseParser ..> RawApiResponse : reads payload
+GooglePlacesApiClient --> GooglePlacesApiConfig : config
+TextSearchResponseParser ..> RawApiResponse : reads
 TextSearchResponseParser ..> Place : creates
-SearchArea --> LocationRectangle : provides lat lon rectangle
-LocationRectangle *-- LatLng : defines low and high points
 ```
