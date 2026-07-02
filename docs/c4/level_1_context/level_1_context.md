@@ -15,13 +15,11 @@ flowchart LR
 
     end
 
-    INGESTION_PROCESSING -->|Requests source data| SOURCES
-
-    SOURCES -->|Returns source data| INGESTION_PROCESSING
-
+    INGESTION_PROCESSING -->|Collects source data| SOURCES
+    
     INGESTION_PROCESSING -->|Writes raw and processed datasets| STORAGE_SYSTEM
 
-    INGESTION_PROCESSING -->|Queries metadata| STORAGE_SYSTEM
+    INGESTION_PROCESSING -->|Reads datasets and metadata| STORAGE_SYSTEM
 
     USER -->|Consumes curated datasets| STORAGE_SYSTEM
 

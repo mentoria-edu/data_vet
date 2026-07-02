@@ -49,13 +49,13 @@ flowchart LR
             %% STORAGE
             %% =============================================
 
-            STORAGE[("Data Lake<br/>[Container: MinIO]<br/>Stores raw, processed and curated datasets")]
+            STORAGE[("Lakehouse Storage<br/>[Container: MinIO]<br/>Stores raw, processed and curated datasets")]
 
             %% =============================================
             %% METADATA
             %% =============================================
 
-            CATALOG[("Data Catalog<br/>[Container: HUDI Metastore]<br/>Manages schemas and metadata from the data lake")]
+            CATALOG[("Data Catalog<br/>[Container: HUDI Metastore]<br/>Manages schemas and metadata from the lakehouse storage")]
 
         end
 

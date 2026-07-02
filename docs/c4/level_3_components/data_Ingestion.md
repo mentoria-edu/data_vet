@@ -15,7 +15,7 @@ flowchart TB
 
         direction TB
 
-        MAPS["Maps<br/>[Component: Map Entity]<br/>Provides geographic context for data extraction"]
+        SEARCH_AREA_GENERATOR["Search Area Generator<br/>[Component: Geospatial Target Generator]<br/>Creates project-specific geospatial extraction targets"]
 
         EXTRACTION["Data Extraction<br/>[Component: Data Extractor]<br/>Requests and retrieves source records"]
 
@@ -29,7 +29,7 @@ flowchart TB
     %% FLOWS
     %% =====================================================
 
-    MAPS -->|Provides map context| EXTRACTION
+    SEARCH_AREA_GENERATOR -->|Provides extraction targets| EXTRACTION
 
     EXTRACTION -->|Requests source records| SOURCES
 
@@ -37,7 +37,7 @@ flowchart TB
 
     EXTRACTION -->|Sends raw responses| RAW
 
-    MAPS -->|Logs map context| LOGGER
+    SEARCH_AREA_GENERATOR -->|Logs target generation| LOGGER
 
     EXTRACTION -->|Logs extraction execution| LOGGER
 
@@ -57,7 +57,7 @@ flowchart TB
     %% CLASS ASSIGNMENT
     %% =====================================================
 
-    class MAPS,EXTRACTION,RAW component;
+    class SEARCH_AREA_GENERATOR,EXTRACTION,RAW component;
     class LOGGER logger;
     class SOURCES external;
 ```

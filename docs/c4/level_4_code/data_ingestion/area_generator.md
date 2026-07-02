@@ -1,10 +1,12 @@
-# Level 4 - Area Generator
+# Level 4 - Search Area Generator
+
+Nota: `SearchAreaGenerator` é um componente específico deste projeto, porque a ingestão depende de áreas geográficas e células H3. Em outro contexto, os `ExtractionTarget` poderiam vir diretamente de configuração, IDs externos, filas, partições ou outro gerador de targets.
 
 ```mermaid
 classDiagram
 direction LR
 
-class Maps {
+class SearchAreaGenerator {
   +String shapefilePath
   +bool splitWithH3
   +loadMap() MapDataset
@@ -42,9 +44,9 @@ class Geometry {
   +List coordinates
 }
 
-Maps --> MapDataset : loads shapefile
-Maps --> H3Splitter : optionally splits
-Maps --> ExtractionTarget : creates
+SearchAreaGenerator --> MapDataset : loads shapefile
+SearchAreaGenerator --> H3Splitter : optionally splits
+SearchAreaGenerator --> ExtractionTarget : creates
 MapDataset "1" o-- "*" MapLocation : contains
 MapLocation --> Geometry : defines
 H3Splitter --> Geometry : creates cells

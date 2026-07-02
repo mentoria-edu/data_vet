@@ -263,7 +263,7 @@ INGESTION["Ingestion Service<br/>[Container: Python]<br/>Collects and sends data
 
 PROCESSOR["Analytics Processing<br/>[Container: Spark]<br/>Transforms and processes analytical datasets"]
 
-STORAGE[("Data Lake<br/>[Container: HDFS]<br/>Stores raw and processed data")]
+STORAGE[("Lakehouse Storage<br/>[Container: HDFS]<br/>Stores raw and processed data")]
 
 METADATA[("Metadata Catalog<br/>[Container: PostgreSQL]<br/>Manages schemas and analytical tables")]
 
