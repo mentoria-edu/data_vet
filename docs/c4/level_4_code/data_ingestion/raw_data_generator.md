@@ -2,13 +2,12 @@
 
 ```mermaid
 classDiagram
-direction TB
+direction LR
 
-class RawWriter {
+class RawDataGenerator {
   +String storagePath
-  +writeAggregate(AggregateResult result) void
-  +writeTextSearch(TextSearchPage page) void
-  +buildRecord(SearchArea area, RawApiResponse response, int pageNumber) RawRecord
+  +write(ApiResponsePage page) void
+  +buildRecord(ApiResponsePage page) RawRecord
 }
 
 class RawStorageRepository {
@@ -22,8 +21,7 @@ class FileRawStorageRepository {
 
 class RawPathBuilder {
   +String basePath
-  +aggregatePath(SearchArea area, DateTime timestamp) String
-  +textSearchPath(SearchArea area, int pageNumber, DateTime timestamp) String
+  +buildPath(String sourceName, String targetId, int pageNumber, DateTime timestamp) String
 }
 
 class RawRecord {
@@ -32,49 +30,33 @@ class RawRecord {
 }
 
 class RawMetadata {
-  +String areaId
+  +String sourceName
+  +String targetId
   +DateTime timestamp
-  +Map queryParams
   +int pageNumber
   +String endpoint
-  +LocationRectangle locationRectangle
+  +Map queryParams
 }
 
-class AggregateResult {
-  +SearchArea area
-  +int establishmentCount
-  +SearchAction action
-  +RawApiResponse rawResponse
-}
-
-class TextSearchPage {
-  +SearchArea area
+class ApiResponsePage {
+  +String sourceName
+  +String targetId
   +int pageNumber
-  +String nextPageToken
-  +List~Place~ places
   +RawApiResponse rawResponse
-}
-
-class SearchArea {
-  +String areaId
-  +int resolution
-  +LocationRectangle locationRectangle
 }
 
 class RawApiResponse {
+  +int statusCode
   +String endpoint
   +Map queryParams
   +Json payload
-  +DateTime receivedAt
 }
 
-RawWriter --> RawStorageRepository : persists
-RawWriter --> RawPathBuilder : paths
-RawWriter ..> RawRecord : builds
-RawWriter ..> AggregateResult : reads
-RawWriter ..> TextSearchPage : reads
-
+RawDataGenerator --> RawPathBuilder : builds path
+RawDataGenerator --> RawStorageRepository : persists
+RawDataGenerator ..> RawRecord : creates
+RawDataGenerator ..> ApiResponsePage : reads
 FileRawStorageRepository ..|> RawStorageRepository : implements
-RawStorageRepository ..> RawRecord : saves
-RawPathBuilder ..> SearchArea : reads
+RawRecord --> RawMetadata : includes
+RawRecord --> RawApiResponse : includes
 ```

@@ -2,10 +2,10 @@
 flowchart TB
 
     %% =====================================================
-    %% EXTERNAL SYSTEM
+    %% EXTERNAL SYSTEMS
     %% =====================================================
 
-    GOOGLE["Google Places API<br/>[External System]<br/>Provides veterinary establishments data"]
+    SOURCES["External Data Sources<br/>[External System]<br/>Provides source data through provider endpoints"]
 
     %% =====================================================
     %% CONTAINER BOUNDARY
@@ -15,11 +15,11 @@ flowchart TB
 
         direction TB
 
-        H3["Search Area Generator<br/>[Component: H3]<br/>Generates geospatial indexes and adaptive search areas"]
+        MAPS["Maps<br/>[Component: Map Entity]<br/>Provides geographic context for data extraction"]
 
-        REQUEST["API Request Executor<br/>[Component: Python Requests]<br/>Executes requests to Google Places API"]
+        EXTRACTION["Data Extraction<br/>[Component: Data Extractor]<br/>Requests and retrieves source records"]
 
-        RAW["Raw Data Generator<br/>[Component: Raw Writer]<br/>Creates and serializes raw datasets"]
+        RAW["Raw Data Generator<br/>[Component: Raw Writer]<br/>Creates and serializes raw source datasets"]
 
         LOGGER["Logger<br/>[Component: Logging]<br/>Records execution logs, errors and metrics"]
 
@@ -29,21 +29,17 @@ flowchart TB
     %% FLOWS
     %% =====================================================
 
-    H3 -->|Generates search areas| REQUEST
+    MAPS -->|Provides map context| EXTRACTION
 
-    REQUEST -->|Requests establishments data| GOOGLE
+    EXTRACTION -->|Requests source records| SOURCES
 
-    GOOGLE -->|Returns veterinary data| REQUEST
+    SOURCES -->|Returns source records| EXTRACTION
 
-    REQUEST -->|Sends raw responses| RAW
+    EXTRACTION -->|Sends raw responses| RAW
 
-    REQUEST -->|Requests area subdivision| H3
+    MAPS -->|Logs map context| LOGGER
 
-    H3 -->|Returns refined search areas| REQUEST
-
-    H3 -->|Logs geospatial execution| LOGGER
-
-    REQUEST -->|Logs API requests and failures| LOGGER
+    EXTRACTION -->|Logs extraction execution| LOGGER
 
     RAW -->|Logs dataset generation| LOGGER
 
@@ -51,23 +47,17 @@ flowchart TB
     %% COLORS
     %% =====================================================
 
-    %% Components
     classDef component fill:#2563EB,stroke:#1D4ED8,color:#FFFFFF,stroke-width:2px;
-
-    %% Logger
     classDef logger fill:#B45309,stroke:#D97706,color:#FFFFFF,stroke-width:2px;
-
-    %% External System
     classDef external fill:#15803D,stroke:#166534,color:#FFFFFF,stroke-width:2px;
 
-    %% Boundary
     style INGESTION_BOUNDARY fill:none,stroke:#2563EB,stroke-width:2px,stroke-dasharray: 5 5
 
     %% =====================================================
     %% CLASS ASSIGNMENT
     %% =====================================================
 
-    class H3,REQUEST,RAW component;
+    class MAPS,EXTRACTION,RAW component;
     class LOGGER logger;
-    class GOOGLE external;
+    class SOURCES external;
 ```

@@ -15,9 +15,9 @@ flowchart TB
 
         OPERATOR["SSH Operator<br/>[Component: Airflow SSHOperator]<br/>Executes remote ingestion and processing commands through SSH connections"]
 
-        PYTHON["Python Ingestion Trigger<br/>[Component: Pipeline Trigger]<br/>Triggers ingestion container executions"]
+        PYTHON["Ingestion Pipeline Trigger<br/>[Component: Pipeline Trigger]<br/>Triggers ingestion container executions"]
 
-        SPARK["Spark Processing Trigger<br/>[Component: Pipeline Trigger]<br/>Triggers distributed Spark processing jobs"]
+        SPARK["Processing Pipeline Trigger<br/>[Component: Pipeline Trigger]<br/>Triggers distributed Spark processing jobs"]
 
     end
 
@@ -29,9 +29,9 @@ flowchart TB
 
     WORKERS -->|Executes workflow tasks| OPERATOR
 
-    OPERATOR -->|Triggers Python ingestion container| PYTHON
+    OPERATOR -->|Triggers ingestion pipeline| PYTHON
 
-    OPERATOR -->|Triggers Spark processing container| SPARK
+    OPERATOR -->|Triggers processing pipeline| SPARK
 
     %% =====================================================
     %% COLORS
