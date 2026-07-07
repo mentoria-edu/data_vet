@@ -15,9 +15,9 @@ flowchart TB
 
         direction TB
 
-        SEARCH_AREA_GENERATOR["Search Area Generator<br/>[Component: Geospatial Target Generator]<br/>Creates project-specific geospatial extraction targets"]
+        SEARCH_AREA_GENERATOR["Search Area Generator<br/>[Component: Geospatial Target Generator]<br/>Creates extraction parameters from geographic areas"]
 
-        EXTRACTION["Data Extraction<br/>[Component: Data Extractor]<br/>Requests and retrieves source records"]
+        EXTRACTION["Data Extraction<br/>[Component: Data Extractor]<br/>Requests source records using configured parameters"]
 
         RAW["Raw Data Generator<br/>[Component: Raw Writer]<br/>Creates and serializes raw source datasets"]
 
@@ -29,7 +29,7 @@ flowchart TB
     %% FLOWS
     %% =====================================================
 
-    SEARCH_AREA_GENERATOR -->|Provides extraction targets| EXTRACTION
+    SEARCH_AREA_GENERATOR -->|Provides extraction parameters| EXTRACTION
 
     EXTRACTION -->|Requests source records| SOURCES
 
@@ -37,7 +37,7 @@ flowchart TB
 
     EXTRACTION -->|Sends raw responses| RAW
 
-    SEARCH_AREA_GENERATOR -->|Logs target generation| LOGGER
+    SEARCH_AREA_GENERATOR -->|Logs parameter generation| LOGGER
 
     EXTRACTION -->|Logs extraction execution| LOGGER
 

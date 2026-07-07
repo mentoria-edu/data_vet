@@ -1,6 +1,6 @@
-# Level 4 - Search Area Generator
 
-Nota: `SearchAreaGenerator` é um componente específico deste projeto, porque a ingestão depende de áreas geográficas e células H3. Em outro contexto, os `ExtractionTarget` poderiam vir diretamente de configuração, IDs externos, filas, partições ou outro gerador de targets.
+
+# Level 4 - Search Area Generator
 
 ```mermaid
 classDiagram
@@ -28,15 +28,36 @@ class MapLocation {
 
 class H3Splitter {
   +int resolution
-  +split(Geometry geometry) List~Geometry~
+  +split(Geometry geometry) List~H3Cell~
+}
+
+class H3Cell {
+  +String h3Index
+  +List~Coordinate~ boundary
+}
+
+class GeometryConverter {
+  +toBoundingBox(H3Cell cell) BoundingBox
+  +toGeometry(H3Cell cell) Geometry
+}
+
+class BoundingBox {
+  +float minLatitude
+  +float minLongitude
+  +float maxLatitude
+  +float maxLongitude
 }
 
 class ExtractionTarget {
   +String targetId
   +String locationId
-  +float latitude
-  +float longitude
+  +String locationName
+  +String locationType
+  +String h3Index
+  +BoundingBox boundingBox
   +Geometry geometry
+  +Map values
+  +Map metadata
 }
 
 class Geometry {
@@ -46,8 +67,14 @@ class Geometry {
 
 SearchAreaGenerator --> MapDataset : loads shapefile
 SearchAreaGenerator --> H3Splitter : optionally splits
+SearchAreaGenerator --> GeometryConverter : converts cells
 SearchAreaGenerator --> ExtractionTarget : creates
 MapDataset "1" o-- "*" MapLocation : contains
 MapLocation --> Geometry : defines
-H3Splitter --> Geometry : creates cells
+H3Splitter --> H3Cell : creates hexagons
+GeometryConverter --> H3Cell : reads
+GeometryConverter --> BoundingBox : creates rectangle
+GeometryConverter --> Geometry : creates alternative shape
+ExtractionTarget --> BoundingBox : uses for extraction
+ExtractionTarget --> Geometry : keeps geometry context
 ```

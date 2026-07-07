@@ -5,10 +5,40 @@ classDiagram
 direction LR
 
 class ExecutionLogger {
-  +recordMetric(LogEvent event) void
-  +recordFailure(LogEvent event) void
-  +recordRetry(LogEvent event) void
-  +summarizeRun() ExecutionSummary
+  +startRun() void
+  +record(LogEvent event) void
+  +recordMetric(String metricName, Number value, Map dimensions) void
+  +finishRun(RunStatus status) ExecutionSummary
+}
+
+class ExecutionContext {
+  +String runId
+  +ExecutionLogger logger
+  +PipelineConfig config
+  +DateTime executionDate
+  +Map metadata
+}
+
+class LogEvent {
+  +DateTime timestamp
+  +String runId
+  +String component
+  +String eventType
+  +String level
+  +String targetId
+  +String message
+  +Map context
+}
+
+class LogEventSanitizer {
+  +sanitize(LogEvent event) LogEvent
+}
+
+class ExecutionMetricsCollector {
+  +start() void
+  +record(LogEvent event) void
+  +recordMetric(String metricName, Number value, Map dimensions) void
+  +finish(RunStatus status) ExecutionSummary
 }
 
 class LogSink {
@@ -16,30 +46,25 @@ class LogSink {
   +write(LogEvent event) void
 }
 
-class FileLogSink {
+class JsonLinesFileLogSink {
   +String logPath
   +write(LogEvent event) void
 }
 
-class LogEvent {
-  +DateTime timestamp
-  +String eventType
-  +String targetId
-  +String message
-  +Map context
-}
-
 class ExecutionSummary {
-  +int processedTargets
-  +int apiRequests
-  +int rawRecords
+  +String runId
+  +RunStatus status
+  +Duration executionTime
+  +Map metrics
   +int failures
   +int retries
-  +Duration executionTime
 }
 
+ExecutionContext --> ExecutionLogger : provides
+ExecutionLogger --> LogEventSanitizer : sanitizes
+ExecutionLogger --> ExecutionMetricsCollector : aggregates
 ExecutionLogger --> LogSink : writes
 ExecutionLogger ..> LogEvent : records
-ExecutionLogger ..> ExecutionSummary : summarizes
-FileLogSink ..|> LogSink : implements
+JsonLinesFileLogSink ..|> LogSink : implements
+ExecutionMetricsCollector ..> ExecutionSummary : creates
 ```

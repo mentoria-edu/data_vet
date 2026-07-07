@@ -5,8 +5,15 @@ classDiagram
 direction LR
 
 class DataExtractionExecutor {
-  +extract(ExtractionTarget target, ApiSourceConfig source) List~ApiResponsePage~
+  +extract(ApiSourceConfig source, ExtractionTarget target) List~ApiResponsePage~
+  +buildRequest(ApiSourceConfig source, ExtractionTarget target, PaginationState page) ApiRequest
   +fetch(ApiRequest request) RawApiResponse
+}
+
+class ExtractionTarget {
+  +String targetId
+  +Map values
+  +Map metadata
 }
 
 class ApiSourceConfig {
@@ -16,13 +23,10 @@ class ApiSourceConfig {
   +String httpMethod
   +String authType
   +String paginationType
+  +Map paginationConfig
   +String targetInputMode
   +Map defaultParams
-  +Map targetParamMapping
-}
-
-class ApiRequestBuilder {
-  +build(ApiSourceConfig source, ExtractionTarget target, PaginationState page) ApiRequest
+  +Map defaultHeaders
 }
 
 class ApiClient {
@@ -44,16 +48,10 @@ class ApiRequest {
 
 class ApiResponsePage {
   +String sourceName
+  +ExtractionTarget target
+  +ApiRequest request
   +int pageNumber
-  +List records
   +RawApiResponse rawResponse
-}
-
-class ExtractionTarget {
-  +String targetId
-  +float latitude
-  +float longitude
-  +Geometry geometry
 }
 
 class RawApiResponse {
@@ -68,12 +66,13 @@ class PaginationState {
   +bool hasNextPage
 }
 
-DataExtractionExecutor --> ApiRequestBuilder : builds
+DataExtractionExecutor --> ExtractionTarget : receives
+DataExtractionExecutor --> ApiSourceConfig : reads config
+DataExtractionExecutor ..> ApiRequest : creates
 DataExtractionExecutor --> ApiClient : calls
 DataExtractionExecutor ..> ApiResponsePage : returns
-ApiRequestBuilder --> ApiSourceConfig : reads
-ApiRequestBuilder --> ExtractionTarget : maps
-ApiRequestBuilder ..> ApiRequest : creates
+ApiResponsePage --> ExtractionTarget : keeps context
+ApiResponsePage --> ApiRequest : keeps request
 HttpApiClient ..|> ApiClient : implements
 ApiClient ..> RawApiResponse : returns
 ```

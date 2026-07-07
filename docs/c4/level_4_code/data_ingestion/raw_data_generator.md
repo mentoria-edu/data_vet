@@ -6,57 +6,88 @@ direction LR
 
 class RawDataGenerator {
   +String storagePath
-  +write(ApiResponsePage page) void
-  +buildRecord(ApiResponsePage page) RawRecord
+  +writeBatch(List~ApiResponsePage~ pages) void
+  +buildDataset(List~ApiResponsePage~ pages) RawDataset
 }
 
 class RawStorageRepository {
   <<interface>>
-  +save(String path, RawRecord record) void
+  +save(String path, RawDataset dataset) void
 }
 
 class FileRawStorageRepository {
-  +save(String path, RawRecord record) void
+  +save(String path, RawDataset dataset) void
 }
 
-class RawPathBuilder {
+class RawStoragePath {
   +String basePath
-  +buildPath(String sourceName, String targetId, int pageNumber, DateTime timestamp) String
+  +datasetPath(String sourceName, String runId, DateTime createdAt) String
+}
+
+class RawDataset {
+  +RawDatasetMetadata metadata
+  +List~RawRecord~ records
+}
+
+class RawDatasetMetadata {
+  +String runId
+  +String sourceName
+  +DateTime createdAt
+  +int recordCount
 }
 
 class RawRecord {
   +RawMetadata metadata
+  +ApiRequest request
   +RawApiResponse response
 }
 
 class RawMetadata {
   +String sourceName
   +String targetId
-  +DateTime timestamp
   +int pageNumber
-  +String endpoint
-  +Map queryParams
+  +DateTime receivedAt
+  +Map targetMetadata
 }
 
 class ApiResponsePage {
   +String sourceName
-  +String targetId
+  +ExtractionTarget target
+  +ApiRequest request
   +int pageNumber
   +RawApiResponse rawResponse
 }
 
-class RawApiResponse {
-  +int statusCode
-  +String endpoint
-  +Map queryParams
-  +Json payload
+class ExtractionTarget {
+  +String targetId
+  +Map values
+  +Map metadata
 }
 
-RawDataGenerator --> RawPathBuilder : builds path
-RawDataGenerator --> RawStorageRepository : persists
-RawDataGenerator ..> RawRecord : creates
-RawDataGenerator ..> ApiResponsePage : reads
+class ApiRequest {
+  +String endpoint
+  +String httpMethod
+  +Map headers
+  +Map queryParams
+  +Json body
+}
+
+class RawApiResponse {
+  +int statusCode
+  +Json payload
+  +DateTime receivedAt
+}
+
+RawDataGenerator --> RawStoragePath : resolves path
+RawDataGenerator --> RawStorageRepository : persists dataset
+RawDataGenerator ..> RawDataset : creates
+RawDataGenerator ..> ApiResponsePage : reads pages
 FileRawStorageRepository ..|> RawStorageRepository : implements
+RawDataset --> RawDatasetMetadata : includes
+RawDataset "1" o-- "*" RawRecord : contains
 RawRecord --> RawMetadata : includes
-RawRecord --> RawApiResponse : includes
+RawRecord --> ApiRequest : includes request
+RawRecord --> RawApiResponse : includes response
+ApiResponsePage --> ExtractionTarget : has target
+ApiResponsePage --> ApiRequest : has request
 ```
