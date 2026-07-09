@@ -1,0 +1,4 @@
+interface:
+  display_name: "C4 Model"
+  short_description: "Create and review standardized C4 diagrams"
+  default_prompt: "Use $c4-model to create or review a standardized C4 architecture diagram in Mermaid."
