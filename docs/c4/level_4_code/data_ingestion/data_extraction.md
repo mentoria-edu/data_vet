@@ -1,78 +1,38 @@
 # Level 4 - Data Extraction
 
+Este diagrama de Level 4 Code/UML sugere uma estrutura minima para enviar chamadas genericas para APIs HTTP externas. `ApiDataExtraction` expoe os atributos basicos da chamada, `ApiClient` executa o envio e `ApiResponse` representa o retorno.
+
 ```mermaid
 classDiagram
-direction LR
+    direction LR
 
-class DataExtractionExecutor {
-  +extract(ApiSourceConfig source, ExtractionTarget target) List~ApiResponsePage~
-  +buildRequest(ApiSourceConfig source, ExtractionTarget target, PaginationState page) ApiRequest
-  +fetch(ApiRequest request) RawApiResponse
-}
+    class ApiDataExtraction {
+        +source_config: Map~String, String~
+        +base_url: String
+        +endpoint: String
+        +method: String
+        +headers: Map~String, String~
+        +query_params: Map~String, String~
+    }
 
-class ExtractionTarget {
-  +String targetId
-  +Map values
-  +Map metadata
-}
+    class ApiClient {
+        +send(extraction: ApiDataExtraction) ApiResponse
+    }
 
-class ApiSourceConfig {
-  +String sourceName
-  +String baseUrl
-  +String endpoint
-  +String httpMethod
-  +String authType
-  +String paginationType
-  +Map paginationConfig
-  +String targetInputMode
-  +Map defaultParams
-  +Map defaultHeaders
-}
+    class ApiResponse {
+        +status_code: int
+        +headers: Map~String, String~
+        +body: Json
+    }
 
-class ApiClient {
-  <<interface>>
-  +send(ApiRequest request) RawApiResponse
-}
-
-class HttpApiClient {
-  +send(ApiRequest request) RawApiResponse
-}
-
-class ApiRequest {
-  +String endpoint
-  +String httpMethod
-  +Map headers
-  +Map queryParams
-  +Json body
-}
-
-class ApiResponsePage {
-  +String sourceName
-  +ExtractionTarget target
-  +ApiRequest request
-  +int pageNumber
-  +RawApiResponse rawResponse
-}
-
-class RawApiResponse {
-  +int statusCode
-  +Json payload
-  +DateTime receivedAt
-}
-
-class PaginationState {
-  +String token
-  +int pageNumber
-  +bool hasNextPage
-}
-
-DataExtractionExecutor --> ExtractionTarget : receives
-DataExtractionExecutor --> ApiSourceConfig : reads config
-DataExtractionExecutor ..> ApiRequest : creates
-DataExtractionExecutor --> ApiClient : calls
-DataExtractionExecutor ..> ApiResponsePage : returns
-ApiResponsePage --> ExtractionTarget : keeps context
-ApiResponsePage --> ApiRequest : keeps request
-HttpApiClient ..|> ApiClient : implements
-ApiClient ..> RawApiResponse : returns
+    ApiClient --> ApiDataExtraction : reads API configuration
+    ApiClient --> ApiResponse : returns API response
 ```
+
+## Assumptions
+
+- "Qualquer API" significa qualquer API HTTP.
+- `ApiDataExtraction` concentra a configuracao basica da chamada HTTP para esta POC.
+- `ApiClient` recebe a extracao configurada e retorna `ApiResponse`.
+- `headers` e `query_params` podem ficar vazios para APIs que nao exigem esses valores.
+- Autenticacao, timeout, retry e paginacao automatica ficam fora desta POC.

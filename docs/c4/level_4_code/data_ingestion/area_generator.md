@@ -1,80 +1,42 @@
-
-
 # Level 4 - Search Area Generator
+
+Este diagrama de Level 4 Code/UML sugere uma estrutura minima para transformar uma area geografica em alvos de busca H3 com `bounding_box`. A resolucao H3 pode ser informada na execucao ou usar um valor padrao do `SearchAreaGenerator`.
 
 ```mermaid
 classDiagram
-direction LR
+    direction LR
 
-class SearchAreaGenerator {
-  +String shapefilePath
-  +bool splitWithH3
-  +loadMap() MapDataset
-  +buildTargets() List~ExtractionTarget~
-}
+    class SearchAreaGenerator {
+        +default_h3_resolution: int
+        +load_map() MapDataset
+        +build_initial_targets(h3_resolution: int) List~ExtractionTarget~
+    }
 
-class MapDataset {
-  +String sourcePath
-  +String coordinateReferenceSystem
-  +List~MapLocation~ locations
-}
+    class MapDataset {
+        +source_path: String
+        +locations: List~String~
+    }
 
-class MapLocation {
-  +String locationId
-  +String name
-  +String locationType
-  +Geometry geometry
-}
+    class BoundingBox {
+        +min_latitude: float
+        +min_longitude: float
+        +max_latitude: float
+        +max_longitude: float
+    }
 
-class H3Splitter {
-  +int resolution
-  +split(Geometry geometry) List~H3Cell~
-}
+    class ExtractionTarget {
+        +target_id: String
+        +h3_indexes: List~String~
+        +bounding_box: BoundingBox
+    }
 
-class H3Cell {
-  +String h3Index
-  +List~Coordinate~ boundary
-}
-
-class GeometryConverter {
-  +toBoundingBox(H3Cell cell) BoundingBox
-  +toGeometry(H3Cell cell) Geometry
-}
-
-class BoundingBox {
-  +float minLatitude
-  +float minLongitude
-  +float maxLatitude
-  +float maxLongitude
-}
-
-class ExtractionTarget {
-  +String targetId
-  +String locationId
-  +String locationName
-  +String locationType
-  +String h3Index
-  +BoundingBox boundingBox
-  +Geometry geometry
-  +Map values
-  +Map metadata
-}
-
-class Geometry {
-  +String type
-  +List coordinates
-}
-
-SearchAreaGenerator --> MapDataset : loads shapefile
-SearchAreaGenerator --> H3Splitter : optionally splits
-SearchAreaGenerator --> GeometryConverter : converts cells
-SearchAreaGenerator --> ExtractionTarget : creates
-MapDataset "1" o-- "*" MapLocation : contains
-MapLocation --> Geometry : defines
-H3Splitter --> H3Cell : creates hexagons
-GeometryConverter --> H3Cell : reads
-GeometryConverter --> BoundingBox : creates rectangle
-GeometryConverter --> Geometry : creates alternative shape
-ExtractionTarget --> BoundingBox : uses for extraction
-ExtractionTarget --> Geometry : keeps geometry context
+    SearchAreaGenerator --> MapDataset : loads map
+    SearchAreaGenerator --> ExtractionTarget : creates targets
+    ExtractionTarget --> BoundingBox : uses bounds
 ```
+
+## Assumptions
+
+- O formato real do mapa ainda sera definido.
+- `default_h3_resolution` e usado quando a chamada nao informar uma resolucao H3 especifica.
+- As assinaturas sao exemplos para discutir o desenho.
