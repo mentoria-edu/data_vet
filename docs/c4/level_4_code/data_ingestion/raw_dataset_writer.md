@@ -9,9 +9,9 @@ classDiagram
     class RawDatasetWriter {
         +raw_storage_path: String
         +metadata: Metadata
-        +build_raw_file(inbound_data: InboundData) void
-        +build_metadata_file(metadata: Metadata) void
-        +write_files(inbound_data: InboundData, metadata: Metadata, raw_storage_path: String) void
+        +build_raw_file(inbound_data: InboundData) RawDataFile
+        +build_metadata_file(metadata: Metadata) MetaDataFile
+        +write_files(raw_file: RawDataFile, metadata: MetaDataFile, raw_storage_path: String) void
     }
 
     class InboundData {
@@ -27,7 +27,7 @@ classDiagram
 
     class RawFileStorage {
         <<interface>>
-        +save(path: String, inbound_data: InboundData, metadata: Metadata) void
+        +save(path: String, raw_file: RawDataFile, metadata: MetaDataFile) void
     }
 
     class JsonInboundData
@@ -36,19 +36,19 @@ classDiagram
     class FoursquareMetadata
     class MinIORawFileStorage
 
-    JsonInboundData ..|> InboundData
-    ParquetInboundData ..|> InboundData
+    JsonInboundData <-- InboundData
+    ParquetInboundData <-- InboundData
 
-    GooglePlacesMetadata ..|> Metadata
-    FoursquareMetadata ..|> Metadata
+    GooglePlacesMetadata <-- Metadata
+    FoursquareMetadata <-- Metadata
 
-    MinIORawFileStorage ..|> RawFileStorage
+    MinIORawFileStorage --> RawFileStorage
 
-    RawDatasetWriter --> JsonInboundData : reads inbound file
-    RawDatasetWriter --> ParquetInboundData : reads inbound file
+    RawDatasetWriter <-- JsonInboundData : reads inbound file
+    RawDatasetWriter <-- ParquetInboundData : reads inbound file
 
-    RawDatasetWriter --> GooglePlacesMetadata : validates metadata fields
-    RawDatasetWriter --> FoursquareMetadata : validates metadata fields
+    RawDatasetWriter <-- GooglePlacesMetadata : validates metadata fields
+    RawDatasetWriter <-- FoursquareMetadata : validates metadata fields
 
     RawDatasetWriter --> MinIORawFileStorage : saves raw and metadata files  
 ```
